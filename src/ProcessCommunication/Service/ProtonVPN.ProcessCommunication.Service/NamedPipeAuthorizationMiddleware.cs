@@ -79,7 +79,7 @@ public class NamedPipeAuthorizationMiddleware
         {
             context.Response.StatusCode = authorizationResult.StatusCode;
 
-            string installedServicePath = Path.GetFullPath(_registryEditor.ReadString(_registryUri));
+            string installedServicePath = GetInstalledServicePath();
 
             string clientProcessVersionString = GetVersionFromFilePath(authorizationResult.ClientProcessFileName);
             string serviceProcessVersionString = GetVersionFromFilePath(authorizationResult.ServerProcessFileName);
@@ -145,8 +145,31 @@ public class NamedPipeAuthorizationMiddleware
         }
     }
 
+    private string GetInstalledServicePath()
+    {
+        string imagePath = _registryEditor.ReadString(_registryUri)?.Trim().Trim('"');
+        if (string.IsNullOrWhiteSpace(imagePath))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return Path.GetFullPath(imagePath);
+        }
+        catch (Exception)
+        {
+            return imagePath;
+        }
+    }
+
     private string GetVersionFromFilePath(string filePath)
     {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return string.Empty;
+        }
+
         MatchCollection matches = _installedFolderVersionRegex.Matches(filePath);
         if (matches.Count > 0)
         {

@@ -22,7 +22,7 @@ namespace ProtonVPN.ProcessCommunication.Service;
 public class AuthorizationResult
 {
     public static AuthorizationResult Ok() => new(0);
-    public static AuthorizationResult Error(int statusCode) => new(statusCode);
+    public static AuthorizationResult Error(int statusCode) => new(statusCode, string.Empty, string.Empty);
     public static AuthorizationResult Error(int statusCode, string clientProcessFileName, string serverProcessFileName) =>
         new(statusCode, clientProcessFileName, serverProcessFileName);
 
@@ -38,7 +38,7 @@ public class AuthorizationResult
     private AuthorizationResult(int statusCode, string clientProcessFileName, string serverProcessFileName)
         : this(statusCode)
     {
-        ClientProcessFileName = clientProcessFileName;
-        ServerProcessFileName = serverProcessFileName;
+        ClientProcessFileName = clientProcessFileName ?? string.Empty;
+        ServerProcessFileName = serverProcessFileName ?? string.Empty;
     }
 }

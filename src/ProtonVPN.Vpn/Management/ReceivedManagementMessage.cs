@@ -64,7 +64,13 @@ public class ReceivedManagementMessage
 
     public NetworkTraffic Bandwidth()
     {
-        string[] byteCountArr = _messageText.Split(':')[1].Split(',');
+        string[] messageParts = _messageText.Split(':', 2);
+        if (messageParts.Length < 2)
+        {
+            return NetworkTraffic.Zero;
+        }
+
+        string[] byteCountArr = messageParts[1].Split(',');
         if (byteCountArr.Length <= 1)
         {
             return NetworkTraffic.Zero;

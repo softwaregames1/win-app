@@ -80,7 +80,7 @@ public class SystemProcesses : IOsProcesses
         {
             try
             {
-                if (p.MainModule?.FileName == path)
+                if (string.Equals(p.MainModule?.FileName, path, StringComparison.OrdinalIgnoreCase))
                 {
                     result.Add(new SystemProcess(_logger, p));
                 }

@@ -82,7 +82,11 @@ public class ManagementMessages
 
     private static string EscapedString(string value)
     {
-        return "\"" + value
+        // The management interface is line based, so line breaks cannot be escaped and must
+        // be removed to prevent injecting additional management commands.
+        return "\"" + (value ?? string.Empty)
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty)
             .Replace("\\", "\\\\")
             .Replace("\"", "\\\"")
             .Replace(" ", "\\ ")

@@ -23,7 +23,8 @@ namespace ProtonVPN.Api.Handlers.TlsPinning
 {
     public class CachingReportClient : IReportClient
     {
-        private readonly List<string> _cache = new();
+        private readonly HashSet<string> _cache = new();
+        private readonly object _lock = new();
 
         private readonly IReportClient _origin;
 
@@ -35,12 +36,16 @@ namespace ProtonVPN.Api.Handlers.TlsPinning
         public void Send(ReportBody body)
         {
             string hash = body.Hash();
-            if (_cache.Contains(hash))
+
+            // Certificate validation callbacks can run concurrently on multiple threads
+            lock (_lock)
             {
-                return;
+                if (!_cache.Add(hash))
+                {
+                    return;
+                }
             }
 
-            _cache.Add(hash);
             _origin.Send(body);
         }
     }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.CompilerServices;
@@ -114,13 +115,15 @@ public class WintunTrafficManager : IWintunTrafficManager
                         break;
                     }
 
-                    if (line.StartsWith("rx_bytes="))
+                    if (line.StartsWith("rx_bytes=", StringComparison.Ordinal) &&
+                        ulong.TryParse(line.AsSpan(9), NumberStyles.None, CultureInfo.InvariantCulture, out ulong rxBytes))
                     {
-                        rx += ulong.Parse(line.Substring(9));
+                        rx += rxBytes;
                     }
-                    else if (line.StartsWith("tx_bytes="))
+                    else if (line.StartsWith("tx_bytes=", StringComparison.Ordinal) &&
+                        ulong.TryParse(line.AsSpan(9), NumberStyles.None, CultureInfo.InvariantCulture, out ulong txBytes))
                     {
-                        tx += ulong.Parse(line.Substring(9));
+                        tx += txBytes;
                     }
 
                     yield return new NetworkTraffic(rx, tx);

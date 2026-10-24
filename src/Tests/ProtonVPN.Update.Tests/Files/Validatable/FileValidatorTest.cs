@@ -40,6 +40,17 @@ namespace ProtonVPN.Update.Tests.Files.Validatable
         }
 
         [TestMethod]
+        public async Task Valid_ShouldBeTrue_WhenValidChecksumIsUpperCase()
+        {
+            string filename = TestConfig.GetFolderPath("ProtonVPN_win_v1.5.2.exe");
+            FileValidator validatable = new();
+
+            bool result = await validatable.Valid(filename, "6771CF15B98782E59716CEFEE4AF6F5FC4D43E1A2A4FC14EB7CB80176DE3210EE8342CE6FE28EB76F5A5765AC4D7EFEC312C1712581EAF2A1E5E8DAAE5C94E2A");
+
+            result.Should().BeTrue();
+        }
+
+        [TestMethod]
         public async Task Valid_ShouldBeFalse_WhenInvalidChecksum()
         {
             string filename = TestConfig.GetFolderPath("ProtonVPN_win_v1.5.2.exe");

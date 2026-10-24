@@ -17,6 +17,7 @@
  * along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -40,7 +41,8 @@ namespace ProtonVPN.Update.Files.Validatable
         private static async Task<bool> CheckSumValid(string filename, string expectedCheckSum)
         {
             string checkSum = await new FileCheckSum(filename).Value();
-            return checkSum == expectedCheckSum;
+            return !string.IsNullOrEmpty(expectedCheckSum) &&
+                   string.Equals(checkSum, expectedCheckSum.Trim(), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

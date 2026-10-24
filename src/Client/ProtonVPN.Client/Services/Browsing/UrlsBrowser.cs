@@ -124,6 +124,13 @@ public class UrlsBrowser : IUrlsBrowser
             return;
         }
 
+        url = url.ToFormattedUrl();
+        if (!IsWebUrl(url))
+        {
+            _logger.Warn<AppLog>($"Could not navigate to the requested url because only http and https are allowed. Url: {url}");
+            return;
+        }
+
         try
         {
             if (usePrivateBrowsingMode)
@@ -156,5 +163,11 @@ public class UrlsBrowser : IUrlsBrowser
         {
             _logger.Error<AppFileAccessFailedLog>($"Could not navigate to the requested url: {url}", e);
         }
+    }
+
+    private static bool IsWebUrl(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)
+            && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
     }
 }

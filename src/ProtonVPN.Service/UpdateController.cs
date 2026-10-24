@@ -85,18 +85,25 @@ public class UpdateController : IUpdateController
         Ensure.NotNull(startAutoUpdateIpcEntity, nameof(startAutoUpdateIpcEntity));
         _controllerRetryManager.EnforceRetryId(startAutoUpdateIpcEntity);
 
-        if (_lastUpdateState.IsReady)
+        AppUpdateStateContract lastUpdateState = _lastUpdateState;
+        if (lastUpdateState is null)
+        {
+            _logger.Warn<AppUpdateLog>("Ignoring auto update request because no update state is available yet.");
+            return;
+        }
+
+        if (lastUpdateState.IsReady)
         {
             Version lastRegistryVersion = _currentAppVersionProvider.GetVersion();
 
-            if (_lastUpdateState.Version > lastRegistryVersion)
+            if (lastUpdateState.Version > lastRegistryVersion)
             {
-                await HandleAutoUpdate(_lastUpdateState);
+                await HandleAutoUpdate(lastUpdateState);
             }
-            else if (_lastUpdateState.Version == lastRegistryVersion)
+            else if (lastUpdateState.Version == lastRegistryVersion)
             {
-                _lastUpdateState.Status = AppUpdateStatus.AutoUpdated;
-                await SendUpdateStateAsync(_lastUpdateState);
+                lastUpdateState.Status = AppUpdateStatus.AutoUpdated;
+                await SendUpdateStateAsync(lastUpdateState);
             }
         }
     }
@@ -164,7 +171,7 @@ public class UpdateController : IUpdateController
     {
         try
         {
-            Process process = new();
+            using Process process = new();
             process.StartInfo.FileName = appUpdateStateContract.FilePath;
             process.StartInfo.Arguments = "/VERYSILENT /SUPPRESSMSGBOXES";
             process.Start();
